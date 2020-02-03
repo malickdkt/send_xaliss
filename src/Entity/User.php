@@ -45,6 +45,11 @@ class User implements UserInterface
      */
     private $isActive;
 
+    public function __construct()
+    {
+        $this->isActive=true;
+    }
+
     public function getId(): ?int
     {
         return $this->id;
@@ -122,6 +127,6 @@ class User implements UserInterface
     
     public function getRoles()
     {
-       return $this->roles = ( array )'ROLE_' .strtoupper ( $this->getProfil()->getLibelle() );
+       return $this->roles[] ='ROLE_' .strtoupper ( $this->getProfil()->getLibelle() );
     }
 }

@@ -23,11 +23,11 @@ class AppFixtures extends Fixture
         $role = new Profil();
         $role ->setLibelle("Admin_system");
         $manager->persist($role);
-
+        //
         $role1 = new Profil();
         $role1 ->setLibelle("Admin");
         $manager->persist($role1);
-
+        //
         $role2 = new Profil();
         $role2 ->setLibelle("Cassier");
         $manager->persist($role2);
@@ -36,10 +36,14 @@ class AppFixtures extends Fixture
         $role3 = new Profil();
         $role3 ->setLibelle("Partenaire");
         $manager->persist($role3);
+        //
         $admin = new User();
         $admin->setUsername('malickdkt');
         $admin->setLogin('diakhate@gmail.com');
         $admin->setPassword($this->encoder->encodePassword($admin, "miko1234"));
+        $admin->setProfil($role);
+        //dd($admin->getRoles())
+        $manager->persist($admin);
 
         $manager->flush();
     }
