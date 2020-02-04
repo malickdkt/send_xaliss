@@ -127,6 +127,7 @@ class User implements UserInterface
     
     public function getRoles()
     {
-       return $this->roles[] ='ROLE_' .strtoupper ( $this->getProfil()->getLibelle() );
+       return $this->roles=['ROLE_' .strtoupper ( $this->getProfil()->getLibelle())];
+       
     }
 }
