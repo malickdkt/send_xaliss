@@ -20,7 +20,7 @@ class UserVoter extends Voter
     protected function voteOnAttribute($attribute, $subject, TokenInterface $token)
     {
         $user = $token->getUser();
-        dd($user);
+        //dd($user);
         // if the user is anonymous, do not grant access
         if (!$user instanceof UserInterface) {
             return false;
@@ -29,12 +29,10 @@ class UserVoter extends Voter
         {
             return true;
         }
-        if ($user->getRoles()[0] === 'ROLE_CAISSIER' ||
-        $user->getRoles()[0] === 'ROLE_PARTENAIRE')
+        if ($user->getRoles()[0] === 'ROLE_CAISSIER' || $user->getRoles()[0] === 'ROLE_PARTENAIRE')
         {
             return false;
         }
-
         // ... (check conditions and return true to grant permission) ...
         switch ($attribute) {
             case 'POST':
