@@ -32,11 +32,11 @@ class AppFixtures extends Fixture
         $manager->persist($role_caissier);
         
         $user = new User();
-        $user->setEmail("cheikh3008@gmail.com")
+        $user->setEmail("malickdkt@gmail.com")
             ->setRole($role_super_admin)
-            ->setPassword($this->encoder->encodePassword( $user , "admin123"))
-            ->setPrenom("Cheikh")
-            ->setNom("Dieng")
+            ->setPassword($this->encoder->encodePassword( $user , "miko1234"))
+            ->setPrenom("Malick")
+            ->setNom("Diakhate")
             ->setIsActive(true);
         $manager->persist($user);
         $manager->flush();

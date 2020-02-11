@@ -79,6 +79,11 @@ class User implements AdvancedUserInterface
      */
     private $role;
 
+    /**
+     * @ORM\ManyToOne(targetEntity="App\Entity\Partenaire", inversedBy="partenaire")
+     */
+    private $partenaire;
+
     
    
 
@@ -197,6 +202,18 @@ class User implements AdvancedUserInterface
     }
     public function isEnabled(){
         return $this->getIsActive();
+    }
+
+    public function getPartenaire(): ?Partenaire
+    {
+        return $this->partenaire;
+    }
+
+    public function setPartenaire(?Partenaire $partenaire): self
+    {
+        $this->partenaire = $partenaire;
+
+        return $this;
     }
 
     

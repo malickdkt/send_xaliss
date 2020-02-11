@@ -14,7 +14,7 @@ class UserVoter extends Voter implements VoterInterface
         // replace with your own logic
         // https://symfony.com/doc/current/security/voters.html
 
-        return in_array($attribute, ['POST', 'POST_VIEW']) // les actions a faire
+        return in_array($attribute, ['POST_EDIT', 'POST_VIEW']) // les actions a faire
             && $subject instanceof \App\Entity\User;
     }
 
@@ -30,10 +30,10 @@ class UserVoter extends Voter implements VoterInterface
             return true;
         }
         // ... (check conditions and return true to grant permission) ...
-        dd($subject);
+        
         
         switch ($attribute) {
-            case 'POST':   
+            case 'POST_EDIT':   
                 if($userConnect->getRoles()[0]==="ROLE_ADMIN" && ($subject->getRoles()[0] === "ROLE_CAISSIER" || $subject->getRoles()[0] === "Partenaire")){
                     return true;
                 }else if($userConnect->getRoles()[0]==="ROLE_CAISSIER" || $userConnect->getRoles()[0]==="Partenaire"){
@@ -42,7 +42,7 @@ class UserVoter extends Voter implements VoterInterface
                           
                 // return true or false
                 break;
-            case 'POST_VIEW':
+            case 'POST_EDIT_VIEW':
                 // logic to determine if the user can VIEW
                 if($userConnect->getRoles()[0]==="ROLE_CAISSIER"){
                     return false;
