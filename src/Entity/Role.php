@@ -6,12 +6,15 @@ use ApiPlatform\Core\Annotation\ApiResource;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+
 
 /**
  * @ApiResource()
- * @ORM\Entity(repositoryClass="App\Repository\ProfilRepository")
+ * @ORM\Entity(repositoryClass="App\Repository\RoleRepository")
+ * @UniqueEntity("libelle" , message="ce role existe déja.")
  */
-class Profil
+class Role
 {
     /**
      * @ORM\Id()
@@ -26,7 +29,7 @@ class Profil
     private $libelle;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\User", mappedBy="profil")
+     * @ORM\OneToMany(targetEntity="App\Entity\User", mappedBy="role")
      */
     private $users;
 
@@ -64,7 +67,7 @@ class Profil
     {
         if (!$this->users->contains($user)) {
             $this->users[] = $user;
-            $user->setProfil($this);
+            $user->setRole($this);
         }
 
         return $this;
@@ -75,8 +78,8 @@ class Profil
         if ($this->users->contains($user)) {
             $this->users->removeElement($user);
             // set the owning side to null (unless already changed)
-            if ($user->getProfil() === $this) {
-                $user->setProfil(null);
+            if ($user->getRole() === $this) {
+                $user->setRole(null);
             }
         }
 
