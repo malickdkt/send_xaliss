@@ -20,7 +20,6 @@ class UserVoter extends Voter
     protected function voteOnAttribute($attribute, $subject, TokenInterface $token)
     {
         $user = $token->getUser();
-        //dd($user);
         // if the user is anonymous, do not grant access
         if (!$user instanceof UserInterface) {
             return false;
@@ -33,12 +32,12 @@ class UserVoter extends Voter
         {
             return false;
         }
+        dd ($subject);
         // ... (check conditions and return true to grant permission) ...
         switch ($attribute) {
             case 'POST':
                 return $user->getRoles()[0] === 'ROLE_ADMIN' &&
-                 ($subject->getRoles()[0] === 'ROLE_CAISSIER' ||
-                  $subject->getRoles()[0] === 'ROLE_PARTENAIRE');
+                ($subject->getProfil()->getLibelle() === 'ROLE_CAISSIER' || $subject->getRoles()[0] === 'ROLE_PARTENAIRE');
                 break;
             case 'POST_VIEW':
                 // logic to determine if the user can VIEW
