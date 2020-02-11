@@ -30,18 +30,10 @@ class AppFixtures extends Fixture
         $role_caissier = new Role();
         $role_caissier->setLibelle("ROLE_CAISSIER");
         $manager->persist($role_caissier);
-
-        $this->addReference('role_super_admin',$role_super_admin);
-        $this->addReference('role_admin',$role_admin);
-        $this->addReference('role_caissier',$role_caissier);
         
-        $roleAdmdinSystem = $this->getReference('role_super_admin');
-        $roleAdmin = $this->getReference('role_admin');
-        $roleAaissier = $this->getReference('role_caissier');
-
         $user = new User();
         $user->setEmail("cheikh3008@gmail.com")
-            ->setRole($roleAdmdinSystem)
+            ->setRole($role_super_admin)
             ->setPassword($this->encoder->encodePassword( $user , "admin123"))
             ->setPrenom("Cheikh")
             ->setNom("Dieng")

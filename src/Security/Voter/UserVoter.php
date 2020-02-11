@@ -26,7 +26,7 @@ class UserVoter extends Voter implements VoterInterface
         if (!$userConnect instanceof UserInterface) {
             return false;
         }
-        if($userConnect->getRoles()[0]==="Admin_system" && $subject->getRoles()[0] != "Admin_system" ){
+        if($userConnect->getRoles()[0]==="ROLE_SUPER_ADMIN" && $subject->getRoles()[0] != "ROLE_SUPER_ADMIN" ){
             return true;
         }
         // ... (check conditions and return true to grant permission) ...
@@ -34,9 +34,9 @@ class UserVoter extends Voter implements VoterInterface
         
         switch ($attribute) {
             case 'POST':   
-                if($userConnect->getRoles()[0]==="Admin" && ($subject->getRoles()[0] === "Caissier" || $subject->getRoles()[0] === "Partenaire")){
+                if($userConnect->getRoles()[0]==="ROLE_ADMIN" && ($subject->getRoles()[0] === "ROLE_CAISSIER" || $subject->getRoles()[0] === "Partenaire")){
                     return true;
-                }else if($userConnect->getRoles()[0]==="Caissier" || $userConnect->getRoles()[0]==="Partenaire"){
+                }else if($userConnect->getRoles()[0]==="ROLE_CAISSIER" || $userConnect->getRoles()[0]==="Partenaire"){
                     return false;
                 }
                           
@@ -44,7 +44,7 @@ class UserVoter extends Voter implements VoterInterface
                 break;
             case 'POST_VIEW':
                 // logic to determine if the user can VIEW
-                if($userConnect->getRoles()[0]==="Caissier"){
+                if($userConnect->getRoles()[0]==="ROLE_CAISSIER"){
                     return false;
                 }   
                 break;   
