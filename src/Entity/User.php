@@ -6,6 +6,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\Collection;
 use ApiPlatform\Core\Annotation\ApiResource;
 use Doctrine\Common\Collections\ArrayCollection;
+use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
@@ -46,50 +47,72 @@ class User implements AdvancedUserInterface
     /**
      * @ORM\Column(type="string", length=255)
      * @Assert\NotBlank(message = "Veuillez remplir ce champ")
+     * @Groups({"write", "read"})
      */
     private $prenom;
 
     /**
      * @ORM\Column(type="string", length=255)
      * @Assert\NotBlank(message = "Veuillez remplir ce champ")
+     * @Groups({"write", "read"})
      */
     private $nom;
 
     /**
      * @ORM\Column(type="string", length=255)
      * @Assert\Email(message = "Veuillez saisir une adresse email valide ." )
+     * @Groups({"write", "read"})
      */
     private $email;
 
     /**
      * @ORM\Column(type="string", length=255)
      * @Assert\NotBlank(message = "Veuillez remplir ce champ")
+     * @Groups({"write", "read"})
      */
     private $password;
 
     /**
      * @ORM\Column(type="boolean")
+     * @Groups({"write", "read"})
      */
     private $isActive;
 
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Role", inversedBy="users")
+     * @ORM\ManyToOne(targetEntity="App\Entity\Role", inversedBy="users", cascade={"persist"})
      * @ORM\JoinColumn(nullable=false)
      * @Assert\NotBlank(message = "Veuillez remplir ce champ")
+     * @Groups({"write", "read"})
      */
     private $role;
 
+    
+
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Partenaire", inversedBy="partenaire")
+     * @ORM\OneToMany(targetEntity="App\Entity\Depot", mappedBy="user", cascade={"persist"})
+     * @Groups({"write", "read"})
+     */
+    private $Depot;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="App\Entity\Partenaire", inversedBy="users", cascade={"persist"})
      */
     private $partenaire;
 
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\Compte", mappedBy="user", cascade={"persist"})
+     */
+    private $comptes;
+
+   
     
    
 
     public function __construct()
     {
         $this->isActive = true;
+        $this->Depot = new ArrayCollection();
+        $this->comptes = new ArrayCollection();
     }
     public function getId(): ?int
     {
@@ -204,6 +227,39 @@ class User implements AdvancedUserInterface
         return $this->getIsActive();
     }
 
+   
+
+    /**
+     * @return Collection|Depot[]
+     */
+    public function getDepot(): Collection
+    {
+        return $this->Depot;
+    }
+
+    public function addDepot(Depot $depot): self
+    {
+        if (!$this->Depot->contains($depot)) {
+            $this->Depot[] = $depot;
+            $depot->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeDepot(Depot $depot): self
+    {
+        if ($this->Depot->contains($depot)) {
+            $this->Depot->removeElement($depot);
+            // set the owning side to null (unless already changed)
+            if ($depot->getUser() === $this) {
+                $depot->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
     public function getPartenaire(): ?Partenaire
     {
         return $this->partenaire;
@@ -215,6 +271,43 @@ class User implements AdvancedUserInterface
 
         return $this;
     }
+
+    /**
+     * @return Collection|Compte[]
+     */
+    public function getComptes(): Collection
+    {
+        return $this->comptes;
+    }
+
+    public function addCompte(Compte $compte): self
+    {
+        if (!$this->comptes->contains($compte)) {
+            $this->comptes[] = $compte;
+            $compte->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCompte(Compte $compte): self
+    {
+        if ($this->comptes->contains($compte)) {
+            $this->comptes->removeElement($compte);
+            // set the owning side to null (unless already changed)
+            if ($compte->getUser() === $this) {
+                $compte->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    
+
+   
+
+   
 
     
     
