@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use DateTime;
 use Doctrine\ORM\Mapping as ORM;
 use ApiPlatform\Core\Annotation\ApiResource;
 use Symfony\Component\Serializer\Annotation\Groups;
@@ -29,7 +30,7 @@ class Depot
      * @ORM\Column(type="datetime")
      * @Groups({"write", "read"})
      */
-    private $CreateAt;
+    private $createAt;
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Compte", inversedBy="depots", cascade={"persist"})
@@ -46,6 +47,11 @@ class Depot
      * cascade={"persist"}
      */
     private $user;
+
+    public function __construct()
+    {
+        $this->createAt = new DateTime();
+    }
 
     public function getId(): ?int
     {
@@ -66,12 +72,12 @@ class Depot
 
     public function getCreateAt(): ?\DateTimeInterface
     {
-        return $this->CreateAt;
+        return $this->createAt;
     }
 
-    public function setCreateAt(\DateTimeInterface $CreateAt): self
+    public function setCreateAt(\DateTimeInterface $createAt): self
     {
-        $this->CreateAt = $CreateAt;
+        $this->createAt = $createAt;
 
         return $this;
     }

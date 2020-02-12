@@ -24,10 +24,12 @@ use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInt
 class PartenaireController extends AbstractController
 {
     private $tokenStorage;
+    private $entityManager;
 
-    public function __construct(TokenStorageInterface $tokenStorage)
+    public function __construct(EntityManagerInterface $entityManager, TokenStorageInterface $tokenStorage)
     {
         $this->tokenStorage = $tokenStorage;
+        $this->entityManager = $entityManager;
         
     }
  
@@ -39,9 +41,9 @@ class PartenaireController extends AbstractController
     
    
         $values = json_decode($request->getContent());
-        if(isset($values->email,$values->password,$values->ninea,$values->montant,$values->nomComplet,$values->adresse,$values->telephone,$values->registreCommercial))
+        if(isset($values->email,$values->password,$values->ninea,$values->montant,$values->rc))
         {
-            $dateCreation = new \DateTime();
+            
             $depot = new Depot();
             $compte = new Compte();                     
             $user = new User();
@@ -51,7 +53,9 @@ class PartenaireController extends AbstractController
             // AFFECTATION DES VALEURS AUX DIFFERENTS TABLE
                     #####   USER    ######
             $roleRepo = $this->getDoctrine()->getRepository(Role::class);
-            $role = $roleRepo->find($values->profil);
+            $role = $roleRepo->find($values->role);
+            $user->setPrenom($values->prenom);
+            $user->setNom($values->nom);
             $user->setEmail($values->email);
             $user->setPassword($userPasswordEncoder->encodePassword($user, $values->password));
             $user->setRole($role);
@@ -61,7 +65,7 @@ class PartenaireController extends AbstractController
           
 
             $partenaire->setNinea($values->ninea);
-            $partenaire->setRc($values->registreCommercial);
+            $partenaire->setRc($values->rc);
 
             $entityManager->persist($partenaire);
             $entityManager->flush();
@@ -77,14 +81,13 @@ class PartenaireController extends AbstractController
            
             $compte->setNumeroCompte($numeroCompte);
             $compte->setSolde(0);
-            $compte->setCreateAt($dateCreation);
             $compte->setPartenaire($partenaire);  
 
             $entityManager->persist($compte);
             $entityManager->flush();
 
                     #####   DEPOT    ######
-            $depot->setCreateAt($dateCreation);
+            
             $depot->setMontant($values->montant);
             $depot->setUser($userCreateur);
             $depot->setCompte($compte);
@@ -127,6 +130,7 @@ class PartenaireController extends AbstractController
             
              $repositori = $this->entityManager->getRepository(Partenaire::class);
              $ninea = $repositori->findOneByNinea($values->ninea);
+
             
              if ($ninea) 
              {
@@ -154,12 +158,16 @@ class PartenaireController extends AbstractController
 
                      $entityManager->persist($compte);
                      $entityManager->flush();
+
+
                      #####   DEPOT    ######
-                  
+
                      $depot->setCreateAt($dateJours);
                      $depot->setMontant($values->montant);
                      $depot->setUser($userCreateur);
                      $depot->setCompte($compte);
+
+                     
 
                      $entityManager->persist($depot);
                      $entityManager->flush();

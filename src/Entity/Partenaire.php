@@ -50,8 +50,8 @@ class Partenaire
     
     public function __construct()
     {
-        $this->Compte = new ArrayCollection();
-        $this->users = new ArrayCollection();
+        $this->Comptes = new ArrayCollection();
+        $this->Partenaire = new ArrayCollection();
     }
 
     public function getId(): ?int

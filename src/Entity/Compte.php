@@ -5,6 +5,7 @@ namespace App\Entity;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\Collection;
 use ApiPlatform\Core\Annotation\ApiResource;
+use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Serializer\Annotation\Groups;
 
@@ -58,7 +59,7 @@ class Compte
      * @ORM\Column(type="datetime")
      * @Groups({"write", "read"})
      */
-    private $CreateAt;
+    private $createAt;
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\User", inversedBy="comptes", cascade={"persist"})
@@ -69,6 +70,7 @@ class Compte
     {
         $this->comptes = new ArrayCollection();
         $this->depots = new ArrayCollection();
+        $this->createAt = new DateTime();
     }
 
     public function getId(): ?int
@@ -158,12 +160,12 @@ class Compte
 
     public function getCreateAt(): ?\DateTimeInterface
     {
-        return $this->CreateAt;
+        return $this->createAt;
     }
 
-    public function setCreateAt(\DateTimeInterface $CreateAt): self
+    public function setCreateAt(\DateTimeInterface $createAt): self
     {
-        $this->CreateAt = $CreateAt;
+        $this->createAt = $createAt;
 
         return $this;
     }
