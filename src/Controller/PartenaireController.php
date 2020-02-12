@@ -2,11 +2,14 @@
 
 namespace App\Controller;
 
+use DateTime;
+use App\Entity\Role;
 use App\Entity\User;
 use App\Entity\Depot;
 use App\Entity\Compte;
+use App\Entity\Contrat;
 use App\Entity\Partenaire;
-use App\Entity\Role;
+use App\Repository\TermesRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -26,10 +29,11 @@ class PartenaireController extends AbstractController
     private $tokenStorage;
     private $entityManager;
 
-    public function __construct(EntityManagerInterface $entityManager, TokenStorageInterface $tokenStorage)
+    public function __construct(EntityManagerInterface $entityManager, TokenStorageInterface $tokenStorage, TermesRepository $terme)
     {
         $this->tokenStorage = $tokenStorage;
         $this->entityManager = $entityManager;
+        $this->terme=$terme;
         
     }
  
@@ -86,6 +90,7 @@ class PartenaireController extends AbstractController
             $entityManager->persist($compte);
             $entityManager->flush();
 
+
                     #####   DEPOT    ######
             
             $depot->setMontant($values->montant);
@@ -100,18 +105,29 @@ class PartenaireController extends AbstractController
             $compte->setSolde($NouveauSolde);
             $entityManager->persist($compte);
             $entityManager->flush();
-
+            $compte = new Compte();
+            $contrat= new Contrat();
+            $contrat->setPartenaire($compte->getPartenaire());
+            $contrat->setCreateAt(new DateTime());
+            $contrat->setArticle($this->terme->findAll()[0]->getTermes());
         $data = [
                 'status1' => 201,
-                'message1' => 'Le compte du partenaire est bien cree avec un depot initia de: '.$values->montant
+                'message1' => 'Le compte du partenaire est bien cree avec un depot initia de: '.$values->montant,
+                'Registre de Commerce Partenaire' => $partenaire->getRc(),
+            'Ninea' => $partenaire->getNinea(),
+            'Date de Creation' => $contrat->getCreateAt(),
+            "Termes" => $contrat->getArticle()
             ];
             return new JsonResponse($data, 201);
+            
+           
         }
         $data = [
             'status2' => 500,
             'message2' => 'Vous devez renseigner un login et un passwordet un ninea pour le partenaire, le numero de compte ainsi que le montant a deposer'
         ];
         return new JsonResponse($data, 500);
+  
     }
     
     /**

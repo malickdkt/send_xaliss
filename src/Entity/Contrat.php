@@ -12,6 +12,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
  */
 class Contrat
 {
+    //$reponse = new JsonResponse($contrat);
     /**
      * @ORM\Id()
      * @ORM\GeneratedValue()
@@ -75,14 +76,13 @@ class Contrat
         return $this;
     }
     
-    public function genContrat($data){
+    public function genContrat($compte){
         $contrat = [
-            'Registre de Commerce Partenaire' => $data->getPartenaire()->getRc,
-            'Ninea' => $data->getPartenaire()->getNinea(),
-            'Date de Creation' => $data->getCreateAt(),
-            "Termes" => $data->getTermes()
+            'Registre de Commerce Partenaire' => $compte->getPartenaire()->getRc(),
+            'Ninea' => $compte->getPartenaire()->getNinea(),
+            'Date de Creation' => $compte->getCreateAt(),
+            "Termes" => $compte->getTermes()
         ];
-        $reponse = new JsonResponse($contrat);
-        return $response;
+        
     }
 }
