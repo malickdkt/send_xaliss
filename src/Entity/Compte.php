@@ -66,11 +66,30 @@ class Compte
      */
     private $user;
 
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\Affectation", mappedBy="compte")
+     */
+    private $affectations;
+
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\Transaction", mappedBy="depot")
+     */
+    private $userTransaction;
+
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\Transaction", mappedBy="retrait")
+     */
+    private $compteTransaction;
+
     public function __construct()
     {
         $this->comptes = new ArrayCollection();
         $this->depots = new ArrayCollection();
         $this->createAt = new DateTime();
+        $this->affectations = new ArrayCollection();
+        $this->userTransaction = new ArrayCollection();
+        $this->compteTransaction = new ArrayCollection();
+
     }
 
     public function getId(): ?int
@@ -178,6 +197,99 @@ class Compte
     public function setUser(?User $user): self
     {
         $this->user = $user;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Affectation[]
+     */
+    public function getAffectations(): Collection
+    {
+        return $this->affectations;
+    }
+
+    public function addAffectation(Affectation $affectation): self
+    {
+        if (!$this->affectations->contains($affectation)) {
+            $this->affectations[] = $affectation;
+            $affectation->setCompte($this);
+        }
+
+        return $this;
+    }
+
+    public function removeAffectation(Affectation $affectation): self
+    {
+        if ($this->affectations->contains($affectation)) {
+            $this->affectations->removeElement($affectation);
+            // set the owning side to null (unless already changed)
+            if ($affectation->getCompte() === $this) {
+                $affectation->setCompte(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Transaction[]
+     */
+    public function getUserTransaction(): Collection
+    {
+        return $this->userTransaction;
+    }
+
+    public function addUserTransaction(Transaction $userTransaction): self
+    {
+        if (!$this->userTransaction->contains($userTransaction)) {
+            $this->userTransaction[] = $userTransaction;
+            $userTransaction->setEnvoi($this);
+        }
+
+        return $this;
+    }
+
+    public function removeUserTransaction(Transaction $userTransaction): self
+    {
+        if ($this->userTransaction->contains($userTransaction)) {
+            $this->userTransaction->removeElement($userTransaction);
+            // set the owning side to null (unless already changed)
+            if ($userTransaction->getEnvoi() === $this) {
+                $userTransaction->setEnvoi(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Transaction[]
+     */
+    public function getCompteTransaction(): Collection
+    {
+        return $this->compteTransaction;
+    }
+
+    public function addCompteTransaction(Transaction $compteTransaction): self
+    {
+        if (!$this->compteTransaction->contains($compteTransaction)) {
+            $this->compteTransaction[] = $compteTransaction;
+            $compteTransaction->setRetrait($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCompteTransaction(Transaction $compteTransaction): self
+    {
+        if ($this->compteTransaction->contains($compteTransaction)) {
+            $this->compteTransaction->removeElement($compteTransaction);
+            // set the owning side to null (unless already changed)
+            if ($compteTransaction->getRetrait() === $this) {
+                $compteTransaction->setRetrait(null);
+            }
+        }
 
         return $this;
     }
