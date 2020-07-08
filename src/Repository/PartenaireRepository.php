@@ -19,6 +19,15 @@ class PartenaireRepository extends ServiceEntityRepository
         parent::__construct($registry, Partenaire::class);
     }
 
+    public function findByNinea($ninea)
+    {
+        $em = $this->getEntityManager();
+        $query = $em->createQuery('SELECT DISTINCT U.prenom, U.nom,  U.email , P.ninea, P.rc
+        FROM App\Entity\User U , App\Entity\Partenaire P , App\Entity\Role R
+        WHERE U.role = R.id AND R.libelle IN (\'ROLE_PARTENAIRE\') AND U.partenaire = P.id AND P.ninea = :ninea');
+        $query->setParameter('ninea', $ninea);
+        return $query->getResult();
+    }
     // /**
     //  * @return Partenaire[] Returns an array of Partenaire objects
     //  */

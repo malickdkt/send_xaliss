@@ -8,8 +8,10 @@ use Doctrine\ORM\EntityManagerInterface;
 use App\Repository\AffectationRepository;
 use App\Repository\TransactionRepository;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\Serializer\SerializerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
@@ -23,9 +25,8 @@ class RetraitController extends AbstractController
     }
     /**
      *@Route("/api/transaction/retrait", name="retrait", methods={"POST"})
-     
      */
-    public function retrait(Request $request,EntityManagerInterface $manager, AffectationRepository $affectationRepository, CompteRepository $compteRipo, TransactionRepository $transactionRepository)
+    public function retrait(Request $request,EntityManagerInterface $manager, AffectationRepository $affectationRepository, CompteRepository $compteRipo, TransactionRepository $transactionRepository, SerializerInterface $serializer)
     {   
         $values = json_decode($request->getContent());
         #### Récupération du code de retrait ####
@@ -86,11 +87,27 @@ class RetraitController extends AbstractController
             $compte->setSolde($NouveauSolde);
             $manager->persist($compte);
             $manager->flush();
-            $data = [
-            'status' => 201,
-            'message' => 'Vous avez retiré '. $code->getMontant()];
+            $data []= [
+                'prenomE' => $code->getPrenomE(),
+                'nomE' => $code->getNomE(),
+                'telephoneE' => $code->getTelephoneE(),
+                'npieceE' => $code->getNpieceE(),
+                'prenomB' => $code->getPrenomB(),
+                'nomB' => $code->getNomB(),
+                'telephoneB' => $code->getTelephoneB(),
+                'npieceB' => $code->getNpieceB(),
+                'montant' => $code->getMontant(),
+                'frais' => $code->getFrais(),
+                'code' => $code->getCode(),
+                'dateRetrait' => $code->getDateRetrait(),
+            
+                ];
 
-            return new JsonResponse($data, 201);
+                $result = $serializer->serialize($data, 'json');
+        
+                return new Response($result, 200, [
+                    'Content-Type' => 'application/json'
+                ]);
 
         }
         else 

@@ -5,15 +5,16 @@ namespace App\Entity;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\Collection;
 use ApiPlatform\Core\Annotation\ApiResource;
-use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
+use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ApiResource(
- * normalizationContext={"groups"={"read"}},
- * denormalizationContext={"groups"={"write"}})
+ * normalizationContext={"groups"={"compte"}})
  * @ORM\Entity(repositoryClass="App\Repository\CompteRepository")
+ * @UniqueEntity("numCompte" , message="ce numéro de compte  existe déja.")
  */
 class Compte
 {
@@ -21,50 +22,54 @@ class Compte
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
+    * @Groups({"compte"})
      */
     private $id;
 
     /**
-     * @ORM\Column(type="string", length=255,nullable=true)
-     * @Groups({"write", "read"})
+     * @ORM\Column(type="string", length=255)
+     * @Assert\NotBlank(message = "Veuillez remplir ce champ")
+    * @Groups({"compte"})
      */
-    private $numero_compte;
+    private $numCompte;
 
     /**
-     * @ORM\Column(type="string", length=255)
-     * @Groups({"write", "read"})
+     * @ORM\Column(type="float")
+     * @Assert\NotBlank(message = "Veuillez remplir ce champ")
+     * @Groups({"compte"})
      */
     private $solde;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Compte", mappedBy="Users",cascade={"persist"})
-     * @Groups({"write", "read"})
+     * @ORM\Column(type="datetime")
+     * @Assert\NotBlank(message = "Veuillez remplir ce champ")
+     * @Groups({"compte"})
+     * )
      */
-    private $comptes;
+    private $createdAt;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Depot", mappedBy="Compte",cascade={"persist"})
-     * @Groups({"write", "read"})
-     */
-    private $depots;
-
-    /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Partenaire", inversedBy="Compte", cascade={"persist"})
+     * @ORM\ManyToOne(targetEntity="App\Entity\User", inversedBy="comptes")
      * @ORM\JoinColumn(nullable=false)
-     * @Groups({"write", "read"})
+     * @Assert\NotBlank(message = "Veuillez remplir ce champ")
+     * @Groups({"compte"})
+     */
+    private $userCreateur;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="App\Entity\Partenaire", inversedBy="comptes")
+     * @ORM\JoinColumn(nullable=false)
+     * @Assert\NotBlank(message = "Veuillez remplir ce champ")
+     * @Groups({"compte"})
      */
     private $partenaire;
 
     /**
-     * @ORM\Column(type="datetime")
-     * @Groups({"write", "read"})
+     * @ORM\OneToMany(targetEntity="App\Entity\Depot", mappedBy="compte")
+     * @Assert\NotBlank(message = "Veuillez remplir ce champ")
+     * @Groups({"compte"})
      */
-    private $createAt;
-
-    /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\User", inversedBy="comptes", cascade={"persist"})
-     */
-    private $user;
+    private $depot;
 
     /**
      * @ORM\OneToMany(targetEntity="App\Entity\Affectation", mappedBy="compte")
@@ -83,13 +88,10 @@ class Compte
 
     public function __construct()
     {
-        $this->comptes = new ArrayCollection();
-        $this->depots = new ArrayCollection();
-        $this->createAt = new DateTime();
+        $this->depot = new ArrayCollection();
         $this->affectations = new ArrayCollection();
         $this->userTransaction = new ArrayCollection();
         $this->compteTransaction = new ArrayCollection();
-
     }
 
     public function getId(): ?int
@@ -97,70 +99,50 @@ class Compte
         return $this->id;
     }
 
-    public function getNumeroCompte(): ?string
+    public function getNumCompte(): ?string
     {
-        return $this->numero_compte;
+        return $this->numCompte;
     }
 
-    public function setNumeroCompte(string $numero_compte): self
+    public function setNumCompte(string $numCompte): self
     {
-        $this->numero_compte = $numero_compte;
+        $this->numCompte = $numCompte;
 
         return $this;
     }
 
-    public function getSolde(): ?string
+    public function getSolde(): ?float
     {
         return $this->solde;
     }
 
-    public function setSolde(string $solde): self
+    public function setSolde(float $solde): self
     {
         $this->solde = $solde;
 
         return $this;
     }
 
-
-
-    /**
-     * @return Collection|self[]
-     */
-    public function getComptes(): Collection
+    public function getCreatedAt(): ?\DateTimeInterface
     {
-        return $this->comptes;
+        return $this->createdAt;
     }
 
-   
-
-   
-    /**
-     * @return Collection|Depot[]
-     */
-    public function getDepots(): Collection
+    public function setCreatedAt(\DateTimeInterface $createdAt): self
     {
-        return $this->depots;
-    }
-
-    public function addDepot(Depot $depot): self
-    {
-        if (!$this->depots->contains($depot)) {
-            $this->depots[] = $depot;
-            $depot->setCompte($this);
-        }
+        $this->createdAt = $createdAt;
 
         return $this;
     }
 
-    public function removeDepot(Depot $depot): self
+    public function getUserCreateur(): ?User
     {
-        if ($this->depots->contains($depot)) {
-            $this->depots->removeElement($depot);
-            // set the owning side to null (unless already changed)
-            if ($depot->getCompte() === $this) {
-                $depot->setCompte(null);
-            }
-        }
+        return $this->userCreateur;
+    }
+
+    public function setUserCreateur(?User $userCreateur): self
+    {
+        $this->userCreateur = $userCreateur;
 
         return $this;
     }
@@ -177,28 +159,39 @@ class Compte
         return $this;
     }
 
-    public function getCreateAt(): ?\DateTimeInterface
+    /**
+     * @return Collection|Depot[]
+     */
+    public function getDepot(): Collection
     {
-        return $this->createAt;
+        return $this->depot;
     }
 
-    public function setCreateAt(\DateTimeInterface $createAt): self
+    public function addDepot(Depot $depot): self
     {
-        $this->createAt = $createAt;
+        if (!$this->depot->contains($depot)) {
+            $this->depot[] = $depot;
+            $depot->setCompte($this);
+        }
 
         return $this;
     }
 
-    public function getUser(): ?User
+    public function removeDepot(Depot $depot): self
     {
-        return $this->user;
-    }
-
-    public function setUser(?User $user): self
-    {
-        $this->user = $user;
+        if ($this->depot->contains($depot)) {
+            $this->depot->removeElement($depot);
+            // set the owning side to null (unless already changed)
+            if ($depot->getCompte() === $this) {
+                $depot->setCompte(null);
+            }
+        }
 
         return $this;
+    }
+    public function __toString(): string
+    {
+        return "";
     }
 
     /**

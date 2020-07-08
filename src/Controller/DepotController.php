@@ -12,8 +12,8 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
 /** 
-* @Route("/api")
-*/
+ * @Route("/api")
+ */
 
 class DepotController extends AbstractController
 {
@@ -30,57 +30,51 @@ class DepotController extends AbstractController
     public function faireDepot(Request $request, EntityManagerInterface $entityManager)
     {
         $values = json_decode($request->getContent());
-        if(isset($values->montant,$values->compte))
-        {
-           
-            $compte = new Compte();                     
-            $compte->setNumeroCompte($values->compte);
+        if ($values) {
             $ReposCompte = $this->entityManager->getRepository(Compte::class);
-            $compte = $ReposCompte->findOneByNumeroCompte($values->compte);
+            $compte = $ReposCompte->findOneBy(array("numCompte" => $values->numCompte));
 
-            if ($compte) 
-             {
-                 if ($values->montant > 0) 
-                 {
+            if ($compte) {
+                if ($values->montant > 0) {
                     $dateDepot = new \DateTime();
                     $depot = new Depot();
                     $caissierAdd = $this->tokenStorage->getToken()->getUser();
-                    $depot->setCreateAt($dateDepot);
+                    $depot->setCreatedAt($dateDepot);
                     $depot->setMontant($values->montant);
-                    $depot->setUser($caissierAdd);
+                    $depot->setUserDepot($caissierAdd);
                     $depot->setCompte($compte);
 
                     $entityManager->persist($depot);
                     $entityManager->flush();
 
                     ####    MIS A JOUR DU SOLDE DE COMPTE   ####
-                    $NouveauSolde = ($values->montant+$compte->getSolde());
+                    $NouveauSolde = ($values->montant + $compte->getSolde());
                     $compte->setSolde($NouveauSolde);
                     $entityManager->persist($compte);
                     $entityManager->flush();
 
                     $data = [
                         'status1' => 201,
-                        'message1' => 'Le depot a ete bien fait: '.$values->montant
-                        ];
+                        'message1' => 'Le depot a ete bien fait: ' . $values->montant
+                    ];
                     return new JsonResponse($data, 201);
                 }
                 $data = [
                     'status2' => 500,
                     'message2' => 'Veuillez saisir un montant de depot valide'
-                    ];
-                    return new JsonResponse($data, 500);
+                ];
+                return new JsonResponse($data, 500);
             }
             $data = [
                 'status' => 500,
                 'message' => 'Desole le numeroCompte saisie n est ratache a aucun compte'
-                ];
-                return new JsonResponse($data, 500);
+            ];
+            return new JsonResponse($data, 500);
         }
         $data = [
-             'status' => 500,
+            'status' => 500,
             'message' => 'Vous devez renseigner  le numero de compte ainsi que le montant a deposer'
-         ];
+        ];
         return new JsonResponse($data, 500);
-  }
+    }
 }

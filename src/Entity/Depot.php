@@ -2,10 +2,10 @@
 
 namespace App\Entity;
 
-use DateTime;
-use Doctrine\ORM\Mapping as ORM;
 use ApiPlatform\Core\Annotation\ApiResource;
-use Symfony\Component\Serializer\Annotation\Groups;
+use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
+
 
 /**
  * @ApiResource()
@@ -20,88 +20,83 @@ class Depot
      */
     private $id;
 
+    
     /**
-     * @ORM\Column(type="string", length=255)
-     * @Groups({"write", "read"})
+     * @ORM\Column(type="float")
+     * @Assert\NotBlank(message = "Veuillez remplir ce champ")
      */
     private $montant;
 
     /**
-     * @ORM\Column(type="datetime")
-     * @Groups({"write", "read"})
-     */
-    private $createAt;
-
-    /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Compte", inversedBy="depots", cascade={"persist"})
+     * @ORM\ManyToOne(targetEntity="App\Entity\User", inversedBy="depots")
      * @ORM\JoinColumn(nullable=false)
-     * @Groups({"write", "read"})
-     * cascade={"persist"}
+     * @Assert\NotBlank(message = "Veuillez remplir ce champ")
      */
-    private $Compte;
+    private $userDepot;
 
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\User", inversedBy="Depot", cascade={"persist"})
-     * @ORM\JoinColumn(nullable=true)
-     * @Groups({"write", "read"})
-     * cascade={"persist"}
+     * @ORM\Column(type="datetime")
+     * @Assert\NotBlank(message = "Veuillez remplir ce champ")
      */
-    private $user;
+    private $createdAt;
 
-    public function __construct()
-    {
-        $this->createAt = new DateTime();
-    }
+    /**
+     * @ORM\ManyToOne(targetEntity="App\Entity\Compte", inversedBy="depot",cascade = {"persist"})
+     * @ORM\JoinColumn(nullable=false)
+     */
+    private $compte;
 
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    public function getMontant(): ?string
+   
+
+    public function getMontant(): ?float
     {
         return $this->montant;
     }
 
-    public function setMontant(string $montant): self
+    public function setMontant(float $montant): self
     {
         $this->montant = $montant;
 
         return $this;
     }
 
-    public function getCreateAt(): ?\DateTimeInterface
+    public function getUserDepot(): ?User
     {
-        return $this->createAt;
+        return $this->userDepot;
     }
 
-    public function setCreateAt(\DateTimeInterface $createAt): self
+    public function setUserDepot(?User $userDepot): self
     {
-        $this->createAt = $createAt;
+        $this->userDepot = $userDepot;
+
+        return $this;
+    }
+
+    public function getCreatedAt(): ?\DateTimeInterface
+    {
+        return $this->createdAt;
+    }
+
+    public function setCreatedAt(\DateTimeInterface $createdAt): self
+    {
+        $this->createdAt = $createdAt;
 
         return $this;
     }
 
     public function getCompte(): ?Compte
     {
-        return $this->Compte;
+        return $this->compte;
     }
 
-    public function setCompte(?Compte $Compte): self
+    public function setCompte(?Compte $compte): self
     {
-        $this->Compte = $Compte;
-
-        return $this;
-    }
-
-    public function getUser(): ?User
-    {
-        return $this->user;
-    }
-
-    public function setUser(?User $user): self
-    {
-        $this->user = $user;
+        $this->compte = $compte;
 
         return $this;
     }

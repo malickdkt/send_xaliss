@@ -17,6 +17,7 @@ use Symfony\Component\Security\Core\User\AdvancedUserInterface;
 
 /**
  * @ApiResource(
+ * normalizationContext={"groups"={"user"}},
  *     itemOperations={
  *          "get"={
  *              "normalization_context"={"groups"={"user:read", "user:item:get"}},
@@ -31,6 +32,7 @@ use Symfony\Component\Security\Core\User\AdvancedUserInterface;
  *          "get"={"access_control"="is_granted('ROLE_ADMIN')"},
  *          "post"={"access_control"="is_granted('POST_EDIT',object)"}
  *     }
+ * 
  * )
  * @ORM\Entity(repositoryClass="App\Repository\UserRepository")
  * 
@@ -88,7 +90,7 @@ class User implements AdvancedUserInterface
      */
     private $role;
 
-    
+
 
     /**
      * @ORM\OneToMany(targetEntity="App\Entity\Depot", mappedBy="user", cascade={"persist"})
@@ -116,9 +118,9 @@ class User implements AdvancedUserInterface
      */
     private $transactionUserRetrait;
 
-   
-    
-   
+
+
+
 
     public function __construct()
     {
@@ -211,14 +213,13 @@ class User implements AdvancedUserInterface
     }
     public function getRoles(): array
     {
-        
+
         return [strtoupper($this->role->getLibelle())];
     }
-    
+
     public function getSalt()
     {
         return null;
-
     }
 
     /**
@@ -229,20 +230,24 @@ class User implements AdvancedUserInterface
         return null;
     }
 
-    public function isAccountNonExpired(){
+    public function isAccountNonExpired()
+    {
         return true;
     }
-    public function isAccountNonLocked(){
+    public function isAccountNonLocked()
+    {
         return true;
     }
-    public function isCredentialsNonExpired(){
+    public function isCredentialsNonExpired()
+    {
         return true;
     }
-    public function isEnabled(){
+    public function isEnabled()
+    {
         return $this->getIsActive();
     }
 
-   
+
 
     /**
      * @return Collection|Depot[]
@@ -256,7 +261,7 @@ class User implements AdvancedUserInterface
     {
         if (!$this->Depot->contains($depot)) {
             $this->Depot[] = $depot;
-            $depot->setUser($this);
+            $depot->setUserDepot($this);
         }
 
         return $this;
@@ -267,8 +272,8 @@ class User implements AdvancedUserInterface
         if ($this->Depot->contains($depot)) {
             $this->Depot->removeElement($depot);
             // set the owning side to null (unless already changed)
-            if ($depot->getUser() === $this) {
-                $depot->setUser(null);
+            if ($depot->getUserDepot() === $this) {
+                $depot->setUserDepot(null);
             }
         }
 
@@ -299,7 +304,7 @@ class User implements AdvancedUserInterface
     {
         if (!$this->comptes->contains($compte)) {
             $this->comptes[] = $compte;
-            $compte->setUser($this);
+            $compte->setUserCreateur($this);
         }
 
         return $this;
@@ -310,8 +315,8 @@ class User implements AdvancedUserInterface
         if ($this->comptes->contains($compte)) {
             $this->comptes->removeElement($compte);
             // set the owning side to null (unless already changed)
-            if ($compte->getUser() === $this) {
-                $compte->setUser(null);
+            if ($compte->getUserCreateur() === $this) {
+                $compte->setUserCreateur(null);
             }
         }
 
@@ -422,13 +427,4 @@ class User implements AdvancedUserInterface
 
         return $this;
     }
-
-    
-
-   
-
-   
-
-    
-    
 }

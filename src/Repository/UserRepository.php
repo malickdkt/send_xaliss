@@ -2,9 +2,11 @@
 
 namespace App\Repository;
 
+use App\Entity\Role;
 use App\Entity\User;
-use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use App\Entity\Partenaire;
 use Doctrine\Common\Persistence\ManagerRegistry;
+use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 
 /**
  * @method User|null find($id, $lockMode = null, $lockVersion = null)
@@ -19,32 +21,47 @@ class UserRepository extends ServiceEntityRepository
         parent::__construct($registry, User::class);
     }
 
-    // /**
-    //  * @return User[] Returns an array of User objects
-    //  */
-    /*
-    public function findByExampleField($value)
+    public function findUsersBySupAdmin()
     {
-        return $this->createQueryBuilder('u')
-            ->andWhere('u.exampleField = :val')
-            ->setParameter('val', $value)
-            ->orderBy('u.id', 'ASC')
-            ->setMaxResults(10)
-            ->getQuery()
-            ->getResult()
-        ;
+        return $this->getEntityManager()
+            ->createQuery('SELECT DISTINCT U.id , U.prenom, U.nom,  U.email , U.isActive ,R.libelle
+        FROM App\Entity\User U , App\Entity\Role R
+        WHERE U.role = R.id AND R.libelle IN (\'ROLE_ADMIN\',\'ROLE_CAISSIER\') ')->getResult();
     }
-    */
+    public function findUsersByAdmin()
+    {
+        return $this->getEntityManager()
+            ->createQuery('SELECT DISTINCT U.id , U.prenom, U.nom,  U.email , U.isActive ,R.libelle
+        FROM App\Entity\User U , App\Entity\Role R
+        WHERE U.role = R.id AND R.libelle IN (\'ROLE_CAISSIER\') ')->getResult();
+    }
+    public function findByPartenaire()
+    {
+        return $this->getEntityManager()
+            ->createQuery('SELECT DISTINCT U.id , U.prenom, U.nom,  U.email , U.isActive ,R.libelle, P.ninea , P.rc 
+        FROM App\Entity\User U , App\Entity\Role R , App\Entity\Partenaire P
+        WHERE U.role = R.id AND R.libelle IN (\'ROLE_PARTENAIRE\') AND U.partenaire = P.id
+        ')->getResult();
+    }
+    public function findUsersByPartenaire($id)
+    {
+        return $this->getEntityManager()
+            ->createQuery('SELECT  DISTINCT U.id , U.prenom, U.nom,  U.email , U.isActive ,R.libelle
+        FROM App\Entity\User U , App\Entity\Role R
+        WHERE U.role = R.id AND R.libelle IN (\'ROLE_ADMIN_PARTENAIRE\',\'ROLE_CAISSIER_PARTENAIRE\') AND U.partenaire = ' . $id)->getResult();
+    }
+    public function findUsersByAdminPartenaire($id)
+    {
+        return $this->getEntityManager()
+            ->createQuery('SELECT DISTINCT U.id , U.prenom, U.nom,  U.email , U.isActive ,R.libelle
+                FROM App\Entity\User U , App\Entity\Role R
+                WHERE U.role = R.id AND R.libelle IN (\'ROLE_CAISSIER_PARTENAIRE\') AND U.partenaire = ' . $id)->getResult();
+    }
 
-    /*
-    public function findOneBySomeField($value): ?User
+    public function findByEmail()
     {
-        return $this->createQueryBuilder('u')
-            ->andWhere('u.exampleField = :val')
-            ->setParameter('val', $value)
-            ->getQuery()
-            ->getOneOrNullResult()
-        ;
+        return $this->getEntityManager()
+            ->createQuery('SELECT DISTINCT U.email 
+            FROM App\Entity\User U ')->getResult();
     }
-    */
 }
